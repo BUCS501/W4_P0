@@ -142,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements OnGestureListener
         boolean result = false;
         float diffY = moveEvent.getY() - downEvent.getY();
         float diffX = moveEvent.getX() - downEvent.getX();
+        // fling up or down
         if (!(Math.abs(diffX) > Math.abs(diffY))){
             if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD){
                 if (diffY > 0){
