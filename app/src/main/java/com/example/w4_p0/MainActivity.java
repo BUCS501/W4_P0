@@ -14,26 +14,32 @@ import android.text.TextWatcher;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements OnGestureListener {
+public class MainActivity extends AppCompatActivity implements OnGestureListener{
 
     private CameraManager cameraManager;
     private String cameraID;
     private Switch flashlight;
     private EditText textAction;
     GestureDetector gestureDetector;
-    public static final int SWIPE_THRESHOLD = 100;
-    public static final int SWIPE_VELOCITY_THRESHOLD = 100;
+    public static final int SWIPE_THRESHOLD = 300;
+    public static final int SWIPE_VELOCITY_THRESHOLD = 300;
+    private ImageView light;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        gestureDetector = new GestureDetector(this);
+
+        // Getting access to back camera and flashlight
         textAction = (EditText) findViewById(R.id.textAction);
         cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         try {
@@ -42,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements OnGestureListener
             e.printStackTrace();
         }
 
+
+        // Text Function to turn ON and OFF flashlight
         textAction.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -64,25 +72,16 @@ public class MainActivity extends AppCompatActivity implements OnGestureListener
             public void afterTextChanged(Editable s) {
 
                 if (textAction.getText().toString().equalsIgnoreCase("on")){
-                    try {
-                        cameraManager.setTorchMode(cameraID, true);
                         flashlight.setChecked(true);
-                    } catch (CameraAccessException e) {
-                        e.printStackTrace();
-                    }
                 }
-                else if(textAction.getText().toString().equalsIgnoreCase("off")){
-                    try {
-                        cameraManager.setTorchMode(cameraID, false);
-                        flashlight.setChecked(false);
-                    } catch (CameraAccessException e) {
-                        e.printStackTrace();
-                    }
+                else if(textAction.getText().toString().equalsIgnoreCase("off")) {
+                    flashlight.setChecked(false);
                 }
-
             }
         });
 
+
+        // Switch Function to turn ON and OFF flashlight
         flashlight = (Switch) findViewById(R.id.flishlight);
 
         flashlight.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -106,10 +105,9 @@ public class MainActivity extends AppCompatActivity implements OnGestureListener
             }
         });
 
-
-
     }
 
+    // OnFling Methods
     @Override
     public boolean onDown(MotionEvent e) {
         return false;
@@ -127,7 +125,6 @@ public class MainActivity extends AppCompatActivity implements OnGestureListener
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-
         return false;
     }
 
@@ -151,30 +148,26 @@ public class MainActivity extends AppCompatActivity implements OnGestureListener
                 else{
                     onSwipeTop();
                 }
+                result = true;
             }
         }
 
-        return false;
+        return result;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void onSwipeTop() {
-        try {
-            cameraManager.setTorchMode(cameraID, true);
             flashlight.setChecked(true);
-        } catch (CameraAccessException e) {
-            e.printStackTrace();
-        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void onSwipeBottom() {
-        try {
-            cameraManager.setTorchMode(cameraID, false);
             flashlight.setChecked(false);
-        } catch (CameraAccessException e) {
-            e.printStackTrace();
-        }
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        gestureDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
 }
